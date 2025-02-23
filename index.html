@@ -1,0 +1,119 @@
+<!DOCTYPE html><html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Video Player</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.15.4/video-js.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.15.4/video.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #000;
+            color: #fff;
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: red;
+            color: white;
+            border: none;
+        }
+        .video-container {
+            max-width: 800px;
+            margin: auto;
+            padding-top: 20px;
+        }
+        .video-js {
+            width: 100%;
+        }
+        iframe {
+            width: 100%;
+            height: 450px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Advanced Video Player</h1>
+    <input type="text" id="videoUrl" placeholder="Enter Video URL (MP4, M3U8, Mega.nz, Terabox)">
+    <button onclick="playVideo()">Play Video</button>
+    <div class="video-container">
+        <video id="videoPlayer" class="video-js vjs-default-skin" controls>
+            <source id="videoSource" src="" type="">
+        </video>
+        <iframe id="iframePlayer"></iframe>
+    </div><script>
+    var player = videojs('videoPlayer');
+
+    async function fetchTeraboxDirectLink(url) {
+        try {
+            let response = await fetch(`https://terabox-api.example.com/getlink?url=${encodeURIComponent(url)}`);
+            let data = await response.json();
+            return data.direct_link || null;
+        } catch (error) {
+            console.error("Error fetching Terabox direct link: ", error);
+            return null;
+        }
+    }
+    
+    async function playVideo() {
+        var url = document.getElementById('videoUrl').value;
+        var videoSource = document.getElementById('videoSource');
+        var iframePlayer = document.getElementById('iframePlayer');
+        
+        document.getElementById('videoPlayer').style.display = 'block';
+        iframePlayer.style.display = 'none';
+
+        if (url.includes("mega.nz")) {
+            let match = url.match(/mega\.nz\/file\/(\w+)#(\w+)/);
+            if (match) {
+                let fileId = match[1];
+                iframePlayer.src = 'https://mega.nz/embed/' + fileId;
+                iframePlayer.style.display = 'block';
+                document.getElementById('videoPlayer').style.display = 'none';
+                return;
+            } else {
+                alert('Invalid Mega.nz link.');
+                return;
+            }
+        }
+        
+        if (url.includes("terabox.com") || url.includes("teraboxapp.com")) {
+            let directLink = await fetchTeraboxDirectLink(url);
+            if (directLink) {
+                videoSource.src = directLink;
+                player.load();
+                return;
+            } else {
+                alert('Could not fetch Terabox direct link.');
+                return;
+            }
+        }
+        
+        if (url.includes(".m3u8")) {
+            if (Hls.isSupported()) {
+                var hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(player.el());
+            } else {
+                alert("HLS not supported in this browser.");
+                return;
+            }
+        } else {
+            videoSource.src = url;
+            videoSource.type = "video/mp4";
+            player.load();
+        }
+    }
+</script>
+
+</body>
+</html>
