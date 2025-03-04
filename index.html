@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Castr HLS Player</title>
+
+    <!-- ✅ Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+
+    <!-- ✅ Video.js CSS (Castr-style Player) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/video.js/8.3.0/video-js.min.css" rel="stylesheet">
+
+    <!-- ✅ Custom Styles -->
+    <style>
+        body {
+            background: linear-gradient(to bottom, #FF4A01, white, green);
+            font-family: 'Varela Round', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 20px;
+        }
+        .video-container {
+            width: 100%;
+            max-width: 900px;
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            background: black;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            border: 4px solid white;
+            border-top: 4px solid red;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            z-index: 999;
+        }
+        @keyframes spin {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- ✅ Video Container -->
+    <div class="video-container">
+        <div class="loader" id="loader"></div>
+        <video id="castrPlayer" class="video-js vjs-default-skin" controls autoplay playsinline></video>
+    </div>
+
+    <!-- ✅ Video.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/8.3.0/video.min.js"></script>
+
+    <!-- ✅ HLS.js for HLS Streaming -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+    <!-- ✅ External Scripts (As per Request) -->
+    <script src="https://cdn.heapanalytics.com/js/heap-436040532.js"></script>
+    <script src="https://castr.com/wp-content/plugins/elementor/assets/js/text-editor.2c35aafbe5bf0e127950.bundle.min.js"></script>
+    <script src="https://assets.calendly.com/assets/external/widget.js"></script>
+
+    <!-- ✅ Video.js Initialization -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const video = document.getElementById('castrPlayer');
+            const loader = document.getElementById('loader');
+
+            // ✅ HLS Stream URL
+            const hlsUrl = "https://jcevents.akamaized.net/bpk-tv/JC_Sports18_1HD/JCHLS/hdntl=exp=1741153381~acl=%2F*~id=97ff5c734c6f4a3ea96b01cfd44846cc~data=hdntl~hmac=0af3581f161bae67efc6d4aba882ef7a34ac308c204bfe17e7317eb77bd2aafc/JC_Sports18_1HD-audio_108038_eng=108000-video=2297600.m3u8";
+
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(hlsUrl);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                    video.play();
+                    loader.classList.add("hidden");
+                });
+                hls.on(Hls.Events.ERROR, function (event, data) {
+                    console.error("HLS Error:", data);
+                    alert("Error loading the video!");
+                });
+            } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+                video.src = hlsUrl;
+                video.addEventListener("loadedmetadata", function () {
+                    video.play();
+                    loader.classList.add("hidden");
+                });
+            } else {
+                console.error("HLS Not Supported!");
+                alert("Your browser does not support HLS streaming.");
+            }
+
+            // ✅ Video.js Initialization
+            videojs(video);
+        });
+    </script>
+
+</body>
+</html>
