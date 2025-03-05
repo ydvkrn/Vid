@@ -1,0 +1,17 @@
+[
+    {
+        "title": "Bollywood Movie",
+        "thumbnail": "https://i.postimg.cc/7LQnjcSc/image.jpg",
+        "redirect": "bolly.html"
+    },
+    {
+        "title": "Khuda Aur Mohabbat S03",
+        "thumbnail": "https://i.postimg.cc/v8vtsc7f/image.jpg",
+        "redirect": "holly.html"
+    },
+    {
+        "title": "Mere Humsafar",
+        "thumbnail": "https://i.postimg.cc/LXFCXw0W/image.jpg",
+        "redirect": "pk.html"
+    }
+]
