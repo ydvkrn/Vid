@@ -1,14 +1,22 @@
 [
     {
-        "title": "Video 1",
-        "thumbnail": "https://i.postimg.cc/NMWs4vjx/image.jpg"
+        "title": "Qurban S01",
+        "thumbnail": "https://i.postimg.cc/7LQnjcSc/image.jpg",
+        "redirect": "qurban.html"
     },
     {
-        "title": "Video 2",
-        "thumbnail": "https://i.postimg.cc/NMWs4vjx/image.jpg"
-    },
+        "title": "Khuda Aur Mohabbat S03",
+        "thumbnail": "https://i.postimg.cc/v8vtsc7f/image.jpg",
+        "redirect": "kam3.html"
+    }
     {
-        "title": "Video 3",
-        "thumbnail": "https://i.postimg.cc/NMWs4vjx/image.jpg"
+        "title": "Mere Humsafar",
+        "thumbnail": "https://i.postimg.cc/LXFCXw0W/image.jpg",
+        "redirect": "mh.html"
+    }
+    {
+        "title": "Mayi Ri",
+        "thumbnail": "https://i.postimg.cc/RhDDLRR5/image.jpg",
+        "redirect": "mr.html"
     }
 ]
