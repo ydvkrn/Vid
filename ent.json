@@ -1,17 +1,17 @@
 [
     {
         "title": "Bollywood Movie",
-        "thumbnail": "https://i.postimg.cc/7LQnjcSc/image.jpg",
+        "thumbnail": "https://i.postimg.cc/gcvcKcnT/image.jpg",
         "redirect": "bolly.html"
     },
     {
-        "title": "Khuda Aur Mohabbat S03",
-        "thumbnail": "https://i.postimg.cc/v8vtsc7f/image.jpg",
+        "title": "Hollywood Movies",
+        "thumbnail": "https://i.postimg.cc/HW34jmdf/image.jpg",
         "redirect": "holly.html"
     },
     {
-        "title": "Mere Humsafar",
-        "thumbnail": "https://i.postimg.cc/LXFCXw0W/image.jpg",
+        "title": "Pakistani Dramas",
+        "thumbnail": "https://i.postimg.cc/TPqQ9DvP/image.jpg",
         "redirect": "pk.html"
     }
 ]
