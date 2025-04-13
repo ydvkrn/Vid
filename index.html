@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Castr HLS Player</title>
 
-    <!-- ✅ Google Fonts -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
 
-    <!-- ✅ Video.js CSS (Castr-style Player) -->
+    <!-- Video.js CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/video.js/8.3.0/video-js.min.css" rel="stylesheet">
 
-    <!-- ✅ Custom Styles -->
+    <!-- Custom Styles -->
     <style>
         body {
             background: linear-gradient(to bottom, #FF4A01, white, green);
@@ -21,6 +21,7 @@
             justify-content: center;
             height: 100vh;
             padding: 20px;
+            margin: 0;
         }
         .video-container {
             width: 100%;
@@ -30,6 +31,13 @@
             overflow: hidden;
             background: black;
             box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .credit-title {
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            margin-bottom: 10px;
+            text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
         }
         .loader {
             position: absolute;
@@ -49,62 +57,118 @@
             to { transform: translate(-50%, -50%) rotate(360deg); }
         }
         .hidden { display: none; }
+        .vjs-error-display { 
+            color: white; 
+            background: rgba(0, 0, 0, 0.7); 
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body>
+    <!-- Credit Title -->
+    <div class="credit-title">Made By MSM</div>
 
-    <!-- ✅ Video Container -->
+    <!-- Video Container -->
     <div class="video-container">
         <div class="loader" id="loader"></div>
-        <video id="castrPlayer" class="video-js vjs-default-skin" controls autoplay playsinline></video>
+        <video id="castrPlayer" class="video-js vjs-default-skin vjs-big-play-centered" controls autoplay playsinline preload="auto" width="100%"></video>
     </div>
 
-    <!-- ✅ Video.js Library -->
+    <!-- Video.js Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/8.3.0/video.min.js"></script>
 
-    <!-- ✅ HLS.js for HLS Streaming -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <!-- HLS.js for HLS Streaming -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js"></script>
 
-    <!-- ✅ External Scripts (As per Request) -->
-    <script src="https://cdn.heapanalytics.com/js/heap-436040532.js"></script>
-    <script src="https://castr.com/wp-content/plugins/elementor/assets/js/text-editor.2c35aafbe5bf0e127950.bundle.min.js"></script>
-    <script src="https://assets.calendly.com/assets/external/widget.js"></script>
+    <!-- Video.js HLS Plugin (Optional for better compatibility) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-hls/5.15.0/videojs-contrib-hls.min.js"></script>
 
-    <!-- ✅ Video.js Initialization -->
+    <!-- Video.js Initialization -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const video = document.getElementById('castrPlayer');
+            const videoElement = document.getElementById('castrPlayer');
             const loader = document.getElementById('loader');
 
-            // ✅ HLS Stream URL
-            const hlsUrl = "https://live-test.tsports.com/live-02/master_1080.m3u8?hdntl=Expires=1744625694~_GO=Generated~URLPrefix=aHR0cHM6Ly9saXZlLXRlc3QudHNwb3J0cy5jb20v~Signature=Ac46gdiSKqV74cCGkvddic4Eh7px3_YBLYC7YETbCyK1KBet7F4xIM_UbjFloStMzFo3L3OG4HyaI2QWQicPb3WErk8L&hdnts=URLPrefix=aHR0cHM6Ly9saXZlLXRlc3QudHNwb3J0cy5jb20v~Expires=17442916463600~hmac=0e80c610df07b3377f94eef3e702d3111d23678da03870b09c114d76d49d27cc;
+            // HLS Stream URL
+            const hlsUrl = "https://live-test.tsports.com/live-02/master_1080.m3u8?hdntl=Expires=1744625694~_GO=Generated~URLPrefix=aHR0cHM6Ly9saXZlLXRlc3QudHNwb3J0cy5jb20v~Signature=Ac46gdiSKqV74cCGkvddic4Eh7px3_YBLYC7YETbCyK1KBet7F4xIM_UbjFloStMzFo3L3OG4HyaI2QWQicPb3WErk8L&hdnts=URLPrefix=aHR0cHM6Ly9saXZlLXRlc3QudHNwb3J0cy5jb20v~Expires=17442916463600~hmac=0e80c610df07b3377f94eef3e702d3111d23678da03870b09c114d76d49d27cc";
+
+            // Initialize Video.js
+            const player = videojs(videoElement, {
+                html5: {
+                    hls: {
+                        overrideNative: true,
+                        withCredentials: true
+                    }
+                },
+                controls: true,
+                autoplay: true,
+                playsinline: true,
+                responsive: true,
+                fluid: true
+            });
+
+            // Check if HLS.js is supported
             if (Hls.isSupported()) {
-                const hls = new Hls();
+                const hls = new Hls({
+                    enableWorker: true,
+                    lowLatencyMode: true,
+                    backBufferLength: 90
+                });
+
                 hls.loadSource(hlsUrl);
-                hls.attachMedia(video);
+                hls.attachMedia(videoElement);
+
                 hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                    video.play();
+                    console.log("HLS manifest parsed, playing video...");
+                    player.play();
                     loader.classList.add("hidden");
                 });
+
                 hls.on(Hls.Events.ERROR, function (event, data) {
                     console.error("HLS Error:", data);
-                    alert("Error loading the video!");
+                    loader.classList.add("hidden");
+                    if (data.fatal) {
+                        switch (data.type) {
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                player.errorDisplay.open();
+                                player.error({ message: "Network error: Unable to load the video stream." });
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                player.errorDisplay.open();
+                                player.error({ message: "Media error: Video stream is corrupted or incompatible." });
+                                break;
+                            default:
+                                player.errorDisplay.open();
+                                player.error({ message: "An unexpected error occurred." });
+                                break;
+                        }
+                    }
                 });
-            } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-                video.src = hlsUrl;
-                video.addEventListener("loadedmetadata", function () {
-                    video.play();
+            } else if (videoElement.canPlayType("application/vnd.apple.mpegurl")) {
+                videoElement.src = hlsUrl;
+                videoElement.addEventListener("loadedmetadata", function () {
+                    console.log("Native HLS metadata loaded, playing video...");
+                    player.play();
                     loader.classList.add("hidden");
                 });
+                videoElement.addEventListener("error", function () {
+                    loader.classList.add("hidden");
+                    player.errorDisplay.open();
+                    player.error({ message: "Error loading the video in native mode." });
+                });
             } else {
-                console.error("HLS Not Supported!");
-                alert("Your browser does not support HLS streaming.");
+                console.error("HLS is not supported by this browser.");
+                loader.classList.add("hidden");
+                player.errorDisplay.open();
+                player.error({ message: "Your browser does not support HLS streaming." });
             }
 
-            // ✅ Video.js Initialization
-            videojs(video);
+            // Handle Video.js errors
+            player.on('error', function () {
+                console.error("Video.js error:", player.error());
+                loader.classList.add("hidden");
+            });
         });
     </script>
-
 </body>
 </html>
