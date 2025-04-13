@@ -77,8 +77,7 @@
             const loader = document.getElementById('loader');
 
             // ✅ HLS Stream URL
-            const hlsUrl = "https://jcevents.akamaized.net/bpk-tv/JC_Sports18_1HD/JCHLS/hdntl=exp=1741153381~acl=%2F*~id=97ff5c734c6f4a3ea96b01cfd44846cc~data=hdntl~hmac=0af3581f161bae67efc6d4aba882ef7a34ac308c204bfe17e7317eb77bd2aafc/JC_Sports18_1HD-audio_108038_eng=108000-video=2297600.m3u8";
-
+            const hlsUrl = "https://live-test.tsports.com/live-02/master_1080.m3u8?hdntl=Expires=1744625694~_GO=Generated~URLPrefix=aHR0cHM6Ly9saXZlLXRlc3QudHNwb3J0cy5jb20v~Signature=Ac46gdiSKqV74cCGkvddic4Eh7px3_YBLYC7YETbCyK1KBet7F4xIM_UbjFloStMzFo3L3OG4HyaI2QWQicPb3WErk8L&hdnts=URLPrefix=aHR0cHM6Ly9saXZlLXRlc3QudHNwb3J0cy5jb20v~Expires=17442916463600~hmac=0e80c610df07b3377f94eef3e702d3111d23678da03870b09c114d76d49d27cc;
             if (Hls.isSupported()) {
                 const hls = new Hls();
                 hls.loadSource(hlsUrl);
