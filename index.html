@@ -3,13 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BTF LIVE CRICKET (IPL)</title>
+    <title>Castr Player</title>
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
-
-    <!-- Video.js CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/video.js/8.3.0/video-js.min.css" rel="stylesheet">
 
     <!-- Custom Styles -->
     <style>
@@ -40,6 +37,12 @@
             background: black;
             box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
         }
+        .iframe-player {
+            width: 100%;
+            height: 100%;
+            border: none;
+            aspect-ratio: 16 / 9;
+        }
         .loader {
             position: absolute;
             top: 50%;
@@ -58,11 +61,6 @@
             to { transform: translate(-50%, -50%) rotate(360deg); }
         }
         .hidden { display: none; }
-        .vjs-error-display { 
-            color: white; 
-            background: rgba(0, 0, 0, 0.7); 
-            border-radius: 8px;
-        }
     </style>
 </head>
 <body>
@@ -72,127 +70,55 @@
     <!-- Video Container -->
     <div class="video-container">
         <div class="loader" id="loader"></div>
-        <video id="castrPlayer" class="video-js vjs-default-skin vjs-big-play-centered" controls autoplay playsinline preload="auto" width="100%"></video>
+        <iframe 
+            id="iframePlayer" 
+            class="iframe-player" 
+            src="https://user4580.ifrem.net/iframe/hindi.php" 
+            allowfullscreen 
+            allow="autoplay; encrypted-media"
+        ></iframe>
     </div>
 
-    <!-- Video.js Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/8.3.0/video.min.js"></script>
-
-    <!-- HLS.js for HLS Streaming -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js"></script>
-
-    <!-- Video.js Initialization -->
+    <!-- JavaScript for Loader and Stream Refresh -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const videoElement = document.getElementById('castrPlayer');
             const loader = document.getElementById('loader');
+            const iframe = document.getElementById('iframePlayer');
+            const streamUrl = "https://user4580.ifrem.net/iframe/hindi.php";
 
-            // HLS Stream URL
-            const hlsUrl = "https://user4580.ifrem.net/iframe/hindi.php";
-
-            // Initialize Video.js
-            const player = videojs(videoElement, {
-                html5: {
-                    hls: {
-                        overrideNative: true,
-                        withCredentials: true,
-                        enableLowInitialPlaylist: true, // Start with lower quality for faster load
-                        smoothQualityChange: true,
-                        maxBufferLength: 10, // Reduce buffering for lower latency
-                        liveSyncDurationCount: 3 // Keep close to live edge
-                    }
-                },
-                controls: true,
-                autoplay: true,
-                playsinline: true,
-                responsive: true,
-                fluid: true,
-                liveui: true // Enable live UI for better live experience
+            // Hide loader once iframe is loaded
+            iframe.addEventListener('load', function () {
+                console.log("Iframe loaded successfully");
+                loader.classList.add("hidden");
             });
 
-            // Check if HLS.js is supported
-            if (Hls.isSupported()) {
-                const hls = new Hls({
-                    enableWorker: true,
-                    lowLatencyMode: true, // Optimize for low-latency streaming
-                    autoStartLoad: true,
-                    liveSyncDurationCount: 3, // Stay close to live edge
-                    maxBufferLength: 10, // Reduce buffering
-                    maxMaxBufferLength: 15, // Cap max buffer
-                    liveDurationInfinity: true, // Treat as infinite live stream
-                    backBufferLength: 0 // Discard old segments
-                });
-
-                hls.loadSource(hlsUrl);
-                hls.attachMedia(videoElement);
-
-                hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                    console.log("HLS manifest parsed, attempting to play...");
-                    player.play().catch(err => console.error("Playback error:", err));
-                    loader.classList.add("hidden");
-                });
-
-                hls.on(Hls.Events.ERROR, function (event, data) {
-                    console.error("HLS Error:", data);
-                    loader.classList.add("hidden");
-                    if (data.fatal) {
-                        switch (data.type) {
-                            case Hls.ErrorTypes.NETWORK_ERROR:
-                                console.log("Network error, attempting to reconnect...");
-                                setTimeout(() => hls.loadSource(hlsUrl), 2000); // Retry after 2s
-                                break;
-                            case Hls.ErrorTypes.MEDIA_ERROR:
-                                console.log("Media error, recovering...");
-                                hls.recoverMediaError();
-                                break;
-                            default:
-                                console.log("Unrecoverable error, retrying stream...");
-                                hls.loadSource(hlsUrl);
-                                break;
-                        }
-                    }
-                });
-            } else if (videoElement.canPlayType("application/vnd.apple.mpegurl")) {
-                videoElement.src = hlsUrl;
-                videoElement.addEventListener("loadedmetadata", function () {
-                    console.log("Native HLS metadata loaded, attempting to play...");
-                    player.play().catch(err => console.error("Playback error:", err));
-                    loader.classList.add("hidden");
-                });
-                videoElement.addEventListener("error", function () {
-                    loader.classList.add("hidden");
-                    console.log("Native HLS error, retrying...");
-                    setTimeout(() => {
-                        videoElement.src = hlsUrl;
-                    }, 2000); // Retry after 2s
-                });
-            } else {
-                console.error("HLS is not supported by this browser.");
+            // Handle iframe load errors
+            iframe.addEventListener('error', function () {
+                console.error("Iframe failed to load");
                 loader.classList.add("hidden");
-                alert("Your browser does not support HLS streaming.");
-            }
-
-            // Handle Video.js errors
-            player.on('error', function () {
-                console.error("Video.js error:", player.error());
-                loader.classList.add("hidden");
-                console.log("Retrying stream...");
+                alert("Error: Failed to load the stream. Retrying...");
                 setTimeout(() => {
-                    if (Hls.isSupported()) {
-                        hls.loadSource(hlsUrl);
-                    } else if (videoElement.canPlayType("application/vnd.apple.mpegurl")) {
-                        videoElement.src = hlsUrl;
-                    }
-                }, 2000); // Retry after 2s
+                    iframe.src = streamUrl; // Retry loading
+                }, 2000);
             });
 
-            // Keep stream alive by periodically checking playback
+            // Periodically refresh iframe to prevent pausing due to token expiry
             setInterval(() => {
-                if (player.paused() && !player.ended()) {
-                    console.log("Stream paused unexpectedly, attempting to resume...");
-                    player.play().catch(err => console.error("Resume error:", err));
+                console.log("Refreshing iframe to maintain stream...");
+                iframe.src = streamUrl;
+                loader.classList.remove("hidden");
+                iframe.addEventListener('load', () => {
+                    loader.classList.add("hidden");
+                }, { once: true });
+            }, 300000); // Refresh every 5 minutes (adjust as needed)
+
+            // Fallback timeout to hide loader if load event isn't triggered
+            setTimeout(() => {
+                if (!loader.classList.contains("hidden")) {
+                    console.warn("Loader timeout, hiding loader");
+                    loader.classList.add("hidden");
                 }
-            }, 5000); // Check every 5 seconds
+            }, 10000); // 10 seconds timeout
         });
     </script>
 </body>
